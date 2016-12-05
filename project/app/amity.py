@@ -1,13 +1,14 @@
 class Amity(object):
 
     def __init__(self):
+        self.rooms_list = []
         pass
 
     def create_room(self, *args):
         pass
 
+
 class Rooms ():
-    count = 0
 
     def __init__(self):
         pass
