@@ -1,12 +1,12 @@
 import unittest
-from app.Amity import Amity
+from app.Amity import Amity, Rooms
 
 
 class OfficeSpaceAllocationTests(unittest.TestCase):
 
     def setUp(self):
         self.facility = Amity()
-        self.room = Room()
+        self.room = Rooms()
 
     def test_create_single_office(self):
         '''Tests creating a single office room'''
@@ -51,8 +51,6 @@ class OfficeSpaceAllocationTests(unittest.TestCase):
         self.assertIn(f_fname, self.facility.persons_list)        
 
 
-        
-
     def test_person_values_added_are_of_correct_types(self):
 
         self.assertEqual(0,
@@ -67,10 +65,19 @@ class OfficeSpaceAllocationTests(unittest.TestCase):
             self.facility.create_person,"Percila", "Njira", "Fellow", 0 )     
 
     def test_add_person_to_room(self):
-        
-            
+        r_name = "PHP"
+        f_fname = "Paul"
+        self.facility.create_person(f_fname, "Kahohi", "Fellow", "Y")        
+        self.facility.create_room(
+            {"room_type": "living space", "room_name": r_name})
+        # self.assertEqual(1, len(self.facility.rooms_list))
+        r_name = self.room
+        self.assertEqual(0,len(self.room.occupants))
+        self.facility.add_person(r_name, f_fname)
+        self.assertEqual(1,len(self.room.occupants))
 
-    def test_rellocate(self):
+
+    def test_reallocate(self):
         '''
         1. create person
         2. create room
