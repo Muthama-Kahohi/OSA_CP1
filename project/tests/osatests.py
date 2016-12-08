@@ -7,6 +7,7 @@ class OfficeSpaceAllocationTests(unittest.TestCase):
     def setUp(self):
         self.facility = Amity()
         self.room = Rooms()
+        self.room2 = Rooms()    
 
     def test_create_single_office(self):
         '''Tests creating a single office room'''
@@ -48,8 +49,17 @@ class OfficeSpaceAllocationTests(unittest.TestCase):
         self.assertEqual(2,
                          len(self.facility.persons_list))
         self.assertIn(s_fname, self.facility.persons_list)
-        self.assertIn(f_fname, self.facility.persons_list)        
+        self.assertIn(f_fname, self.facility.persons_list)
 
+    def test_remove_person(self):
+        self.assertEqual(0,
+                         len(self.facility.persons_list))
+        k=self.facility.create_person("Ian", "Oti", "Fellow", "Y")            
+        self.assertEqual(1,
+                         len(self.facility.persons_list))
+        self.facility.remove_person(k)
+        self.assertEqual(0,
+                         len(self.facility.persons_list))
 
     def test_person_values_added_are_of_correct_types(self):
 
@@ -66,26 +76,38 @@ class OfficeSpaceAllocationTests(unittest.TestCase):
 
     def test_add_person_to_room(self):
         r_name = "PHP"
-        f_fname = "Paul"
+        f_fname = "Paul"   
         self.facility.create_person(f_fname, "Kahohi", "Fellow", "Y")        
         self.facility.create_room(
             {"room_type": "living space", "room_name": r_name})
         # self.assertEqual(1, len(self.facility.rooms_list))
-        r_name = self.room
-        self.assertEqual(0,len(self.room.occupants))
+        self.assertEqual(0,len(self.facility.allocated_persons))
         self.facility.add_person(r_name, f_fname)
-        self.assertEqual(1,len(self.room.occupants))
+        self.assertEqual(1,len(self.facility.allocated_persons))
 
 
     def test_reallocate(self):
-        '''
-        1. create person
-        2. create room
-        3. remove person from room
-        4. confirm person removed from room
-        5. Add person to another room
-        6. confirm person is added to that particular room
-        '''
+        r_name = "Go"
+        r2_name = "Java"
+        f_fname = "Sophie"
+        self.facility.create_person(f_fname, "Kahohi", "Fellow", "Y")        
+        self.facility.create_room(
+            {"room_type": "living space", "room_name": r_name})
+        self.facility.create_room(
+            {"room_type": "living space", "room_name": r2_name})       
+        # self.assertEqual(1, len(self.facility.rooms_list))
+        
+        self.assertEqual(0,len(self.room.occupants))
+        self.assertEqual(0,len(self.room2.occupants))
+
+        #Adds person to room
+        self.facility.add_person(self.room2, f_fname)
+        self.assertEqual(1,len(self.room2.occupants))
+
+        #Reallocate person
+        self.reallocate(f_fname, self.room)
+        self.assertEqual(1,len(self.room.occupants))
+        self.assertEqual(0,len(self.room2.occupants))
 
 
 if __name__ == '__main__':
