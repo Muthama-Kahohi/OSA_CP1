@@ -1,5 +1,6 @@
 import unittest
-from app.Amity import Amity, Rooms
+from app.Amity import Amity, Rooms, Office, LivingSpace
+from app.people import Person, Fellow, Staff
 
 
 class OfficeSpaceAllocationTests(unittest.TestCase):
@@ -7,7 +8,7 @@ class OfficeSpaceAllocationTests(unittest.TestCase):
     def setUp(self):
         self.facility = Amity()
         self.room = Rooms()
-        self.room2 = Rooms()    
+        self.room2 = Rooms()   
 
     def test_create_single_office(self):
         '''Tests creating a single office room'''
@@ -83,7 +84,7 @@ class OfficeSpaceAllocationTests(unittest.TestCase):
         # self.assertEqual(1, len(self.facility.rooms_list))
         self.assertEqual(0,len(self.facility.allocated_persons))
         self.facility.add_person(r_name, f_fname)
-        self.assertEqual(1,len(self.facility.allocated_persons))
+        self.assertEqual(1,len(self.facility.allocated_persons))  
 
 
     def test_reallocate(self):
@@ -108,6 +109,14 @@ class OfficeSpaceAllocationTests(unittest.TestCase):
         self.reallocate(f_fname, self.room)
         self.assertEqual(1,len(self.room.occupants))
         self.assertEqual(0,len(self.room2.occupants))
+
+    def test_maximum_capacities_of_room_and_office(self):
+        living = LivingSpace("Shell") 
+        office = Office("Camelot")
+        self.assertEqual(4,living.capacity)
+        self.assertEqual(6,office.capacity)
+
+
 
 
 if __name__ == '__main__':
