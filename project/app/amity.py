@@ -132,7 +132,7 @@ class Amity(object):
             occupy = self.unfilled_offices[rand]
             for room in range(len(self.office_list)):
                 if self.office_list[room]['room_name'] == occupy:
-                    self.office_list[room]['occupants'].append(fname)
+                    self.office_list[room]['occupants'].append(fnameId)
                     print("%s has been added to %s" %
                           (fname.fname, self.office_list[room]['room_name']))
                     break
@@ -147,7 +147,7 @@ class Amity(object):
                 occupy = self.unfilled_living[rand]
                 for room in range(len(self.living_list)):
                     if self.living_list[room]['room_name'] == occupy:
-                        self.living_list[room]['occupants'].append(fname)
+                        self.living_list[room]['occupants'].append(fnameId)
                         print("%s has been added to %s" %
                               (fname.fname, self.living_list[room]['room_name']))
                         print(self.unfilled_living)
@@ -160,9 +160,38 @@ class Amity(object):
     def remove_person(self, person_name):
         pass
 
-    def reallocate(self, fname, room_name):
-        pass
+    def reallocate(self, id, room_from, room_to):
+        for room in range(len(self.office_list)):
+            if self.office_list[room]['room_name'] == room_from:
+                self.office_list[room]['occupants'].remove(id)
+                break
+            else:
+                continue
 
+        for room in range(len(self.living_list)):
+            if self.living_list[room]['room_name'] == room_from:
+                self.living_list[room]['occupants'].remove(id)
+                break
+            else:
+                continue
+        #Ensure that a member is reallocated to an unfilled room  
+        vacant_rooms = self.unfilled_living + self.unfilled_offices
+        if room_to in vacant_rooms:
+            for room in range(len(self.office_list)):
+                if self.office_list[room]['room_name'] == room_to:
+                    self.office_list[room]['occupants'].append(id)
+                    break
+                else:
+                    continue
+
+            for room in range(len(self.living_list)):
+                if self.living_list[room]['room_name'] == room_to:
+                    self.living_list[room]['occupants'].append(id)
+                    break
+                else:
+                    continue
+        else:
+            print "That room is already full and cannot be added"
 
 class Rooms (object):
 
@@ -188,3 +217,5 @@ k.create_person("awesome", "Muthama", 'Fellow', 'Y')
 k.create_person("sxjhjshn", "Muthama", 'Fellow', 'Y')
 k.create_person("bxjhhj", "Muthama", 'Fellow', 'Y')
 k.create_person("Ibrahim", "Machela", 'Fellow', 'Y')
+
+k.reallocate(4441238544, 'Occulus', 'Krypton')
