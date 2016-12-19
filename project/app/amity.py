@@ -1,6 +1,7 @@
 from random import randint
 from people import Person, Staff, Fellow
-
+import random
+import uuid
 
 class Amity(object):
 
@@ -112,9 +113,9 @@ class Amity(object):
             elif role == staff and accomodation == yes:
                 print("Staff members are not given accomodation, only offices")
                 return
-        #Generate a unique id for every person created        
+        # Generate a unique id for every person created
         fname = Person(fname)
-        fnameId = id(fname)
+        fnameId = uuid.uuid4()
 
         person_dict = {'fname': fname.fname, 'lname': lname,
                        'role': role, 'wants_accomodation': accomodation, 'id': fnameId}
@@ -160,21 +161,22 @@ class Amity(object):
     def remove_person(self, person_name):
         pass
 
-    def reallocate(self, id, room_from, room_to):
+    def reallocate(self, id, room_to):
         for room in range(len(self.office_list)):
-            if self.office_list[room]['room_name'] == room_from:
-                self.office_list[room]['occupants'].remove(id)
-                break
-            else:
-                continue
-
+            for occupant in range(len(self.office_list[room]['occupants'])):
+                if occupant == id:
+                    self.office_list[room]['occupants'].remove(id)
+                    break
+                else:
+                    continue
         for room in range(len(self.living_list)):
-            if self.living_list[room]['room_name'] == room_from:
-                self.living_list[room]['occupants'].remove(id)
-                break
-            else:
-                continue
-        #Ensure that a member is reallocated to an unfilled room  
+            for occupant in range(len(self.living_list[room]['occupants'])):
+                if occupant == id:
+                    self.office_list[room]['occupants'].remove(id)
+                    break
+                else:
+                    continue
+        # Ensure that a member is reallocated to an unfilled room
         vacant_rooms = self.unfilled_living + self.unfilled_offices
         if room_to in vacant_rooms:
             for room in range(len(self.office_list)):
@@ -193,6 +195,42 @@ class Amity(object):
         else:
             print "That room is already full and cannot be added"
 
+    def print_room(self, room_name):
+        print("x") * 60
+        print(room_name.upper())
+        print("x") * 60        
+        for room in range(len(self.office_list)):
+            if room_name == self.office_list[room]['room_name']:
+                if len(self.office_list[room]['occupants']) > 1:
+                    for occupant in self.office_list[room]['occupants']:
+                        print(self.return_names(occupant))
+                    break
+                else:
+                    print("No occupants")
+            else:
+                continue
+
+        for room in range(len(self.living_list)):
+            if room_name == self.living_list[room]['room_name']:
+                if len(self.living_list[room]['occupants']) > 1:
+                    for occupant in self.living_list[room]['occupants']:
+                        print(self.return_names(occupant))
+                    break
+                else:
+                    print("No occupants")
+            else:
+                continue
+
+    def return_names(self, id):
+        for person in range(len(self.persons_list)):
+            if self.persons_list[person]['id'] == id:
+                fname = self.persons_list[person]['fname']
+                lname = self.persons_list[person]['lname']
+                break
+            else:
+                continue
+        return('%s %s' % (fname, lname))
+
 class Rooms (object):
 
     def __init__(self):
@@ -208,14 +246,3 @@ class Office(Rooms):
     def __init__(self, room_name):
         self.capacity = 6
 
-k = Amity()
-k.create_room(
-    {'room_name': ['Hogwarts', 'Krypton', 'Occulus'], 'room_type': 'office'})
-k.create_room({'room_name': ['Go', 'pearl', 'Arduino'], 'room_type': 'living'})
-k.create_person("paul", "Muthama", 'Fellow', 'Y')
-k.create_person("awesome", "Muthama", 'Fellow', 'Y')
-k.create_person("sxjhjshn", "Muthama", 'Fellow', 'Y')
-k.create_person("bxjhhj", "Muthama", 'Fellow', 'Y')
-k.create_person("Ibrahim", "Machela", 'Fellow', 'Y')
-
-k.reallocate(4441238544, 'Occulus', 'Krypton')
