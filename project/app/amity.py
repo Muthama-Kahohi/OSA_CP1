@@ -10,7 +10,8 @@ class Amity(object):
         self.living_list = []
         self.persons_list = []
         self.allocated_persons = []
-        self.unfilled_rooms = []
+        self.unfilled_offices = []
+        self.unfilled_living = []
 
     def create_room(self, to_create={}):
         if 'room_type' in to_create.keys() and 'room_name' in to_create.keys():
@@ -23,7 +24,7 @@ class Amity(object):
                         self.office_list.append(
                             {'room_name': room_name, "occupants": []})
                         self.rooms_list.append(room_name)
-                        self.unfilled_rooms.append(room_name)
+                        self.unfilled_offices.append(room_name)
                         room_name = Office(room_name)
 
                     else:
@@ -36,7 +37,7 @@ class Amity(object):
                             self.office_list.append(
                                 {'room_name': room_name, "occupants": []})
                             self.rooms_list.append(room_name)
-                            self.unfilled_rooms.append(room_name)
+                            self.unfilled_offices.append(room_name)
                             room_name = Office(room_name)
 
                         else:
@@ -49,9 +50,9 @@ class Amity(object):
                         self.living_list.append(
                             {'room_name': room_name, "occupants": []})
                         self.rooms_list.append(room_name)
-                        self.unfilled_rooms.append(room_name)
+                        self.unfilled_living.append(room_name)
                         room_name = LivingSpace(room_name)
-                        print(self.unfilled_rooms)
+                        print(self.unfilled_living)
                         print('The rooms capacity is:%d ' % room_name.capacity)
                     else:
                         print("Room already exists")
@@ -63,14 +64,29 @@ class Amity(object):
                             self.living_list.append(
                                 {'room_name': room_name, 'occupants': []})
                             self.rooms_list.append(room_name)
+                            self.unfilled_living.append(room_name)
                             room_name = LivingSpace(room_name)
-                            self.unfilled_rooms.append(room_name)
                         else:
                             print("Room already exists")
 
             else:
                 print("Room can only be an Office or a Living Space")
-        self.rooms_list = self.office_list + self.living_list 
+        self.rooms_list = self.office_list + self.living_list
+
+    def room_availability(self):
+        for room in range(len(self.office_list)):
+            if len(self.office_list[room]['occupants']) == 6:
+                filled_room = self.office_list[room]['room_name']
+                print("Room %s is full. I t has to be removed++++++++++++++"
+                      % filled_room)
+                self.unfilled_offices.remove(filled_room)
+        for room in range(len(self.living_list)):
+            if len(self.living_list[room]['occupants']) == 4:
+                room_name = self.living_list[room]['room_name']
+                print("Room %s is full. I t has to be removed++++++++++++++"
+                      % room_name)
+                self.unfilled_living.remove(room_name)
+        print("Room availability check done************")
 
     def create_person(self, fname, lname, role, accomodation):
         role, accomodation = role.upper(), accomodation.upper()
@@ -101,43 +117,49 @@ class Amity(object):
 
         self.persons_list.append(person_dict)
 
-        print ('%s %s has been added.' % (fname, lname))
+        print ('%s %s has been created.' % (fname, lname))
+        # Before allocation room availability is confirrmed
+        self.room_availability()
         # Allocate office to any person added
-        if len(self.office_list) == 1:
-            self.office_list[0]['occupants'].append(fname)
-            print("%s has been added to %s" %
-                  (fname, self.office_list[0]['room_name']))
-        elif len(self.office_list) == 0:
-            print("No rooms to allocate")
+
+        if len(self.unfilled_offices) > 0:
+            rand = randint(0, len(self.unfilled_offices) - 1)
+            occupy = self.unfilled_offices[rand]
+            for room in range(len(self.office_list)):
+                if self.office_list[room]['room_name'] == occupy:
+                    self.office_list[room]['occupants'].append(fname)
+                    print("%s has been added to %s" %
+                          (fname, self.office_list[room]['room_name']))
+                    break
+                else:
+                    continue
         else:
-            rand = randint(0, len(self.office_list) - 1)
-            self.office_list[rand]['occupants'].append(fname)
-            print("%s has been added to %s" %
-                  (fname, self.office_list[rand]['room_name']))
-        #Allocate Living Space
+            print("No offices to allocate")
+
         if role == fellow and accomodation == yes:
-            if len(self.living_list) == 1:
-                self.living_list[0]['occupants'].append(fname)
-                print("%s has been added to %s" %
-                      (fname, self.living_list[0]['room_name']))
-            elif len(self.living_list) == 0:
-                print("No rooms to allocate")
+            if len(self.unfilled_living) > 0:
+                rand = randint(0, len(self.unfilled_living) - 1)
+                occupy = self.unfilled_living[rand]
+                for room in range(len(self.living_list)):
+                    if self.living_list[room]['room_name'] == occupy:
+                        self.living_list[room]['occupants'].append(fname)
+                        print("%s has been added to %s" %
+                              (fname, self.living_list[room]['room_name']))
+                        print(self.unfilled_living)
+                        break
+                    else:
+                        continue
             else:
-                rand = randint(0, len(self.office_list) - 1)
-                self.living_list[rand]['occupants'].append(fname)
-                print("%s has been added to %s" %
-                      (fname, self.living_list[rand]['room_name']))
+                print("No Living space to allocate")
 
     def add_person(self, fname, lname):
-        pass            
+        pass
 
     def remove_person(self, person_name):
         pass
-    def reallocate(self, fname, room_name):
-        pass    
 
-    def room_availability(self):
-          pass    
+    def reallocate(self, fname, room_name):
+        pass
 
 
 class Rooms (object):
@@ -155,4 +177,11 @@ class Office(Rooms):
     def __init__(self, room_name):
         self.capacity = 6
 
-
+k = Amity()
+k.create_room({'room_name': 'Hogwarts', 'room_type': 'office'})
+k.create_room({'room_name': 'Go', 'room_type': 'living'})
+k.create_person("paul", "Muthama", 'Fellow', 'Y')
+k.create_person("awesome", "Muthama", 'Fellow', 'Y')
+k.create_person("sxjhjshn", "Muthama", 'Fellow', 'Y')
+k.create_person("bxjhhj", "Muthama", 'Fellow', 'Y')
+k.create_person("Ibrahim", "Machela", 'Fellow', 'Y')

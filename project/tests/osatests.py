@@ -119,13 +119,14 @@ class OfficeSpaceAllocationTests(unittest.TestCase):
         '''test that only unfilled rooms are available for allocation'''
         self.facility.create_room({"room_type": "living", "room_name": 'Go'})
         living = LivingSpace('Go')
-        self.assertEqual(1, len(self.facility.unfilled_rooms))
+        self.assertEqual(1, len(self.facility.unfilled_living))
         self.facility.create_person('paul', "Kahohi", "Fellow", "Y")
         self.facility.create_person('sophie', "Kibanani", "Fellow", "Y")
         self.facility.create_person('victor', "wabwoba", "Fellow", "Y")
         self.facility.create_person('Madeline', "Kwambok", "Fellow", "Y")
         self.assertEqual(4, len(self.facility.living_list[0]['occupants']))
-        self.assertEqual(0, len(self.facility.unfilled_rooms))
+        self.facility.room_availability()
+        self.assertEqual(0, len(self.facility.unfilled_living))
 
 
 
