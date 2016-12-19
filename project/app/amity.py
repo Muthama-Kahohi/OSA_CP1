@@ -231,6 +231,22 @@ class Amity(object):
                 continue
         return('%s %s' % (fname, lname))
 
+    def load_people(self, file_name):
+        array = []
+        with open(file_name, mode="r") as ins:
+            array = ins.readlines()
+            for persons in array:
+                person = persons.split()
+                fname = person[0]
+                lname = person[1]
+                role = person[2]
+                if role == 'STAFF' and len(person) == 3:
+                    accomodation = 'N'
+                else:
+                    accomodation = person[3]
+                self.create_person(fname, lname, role, accomodation)
+
+
 class Rooms (object):
 
     def __init__(self):
@@ -241,8 +257,9 @@ class LivingSpace(Rooms):
     def __init__(self, room_name):
         self.capacity = 4
 
-
 class Office(Rooms):
     def __init__(self, room_name):
         self.capacity = 6
 
+k = Amity()
+k.load_people('file.txt')
