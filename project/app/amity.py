@@ -1,4 +1,5 @@
 from random import randint
+from people import Person, Staff, Fellow
 
 
 class Amity(object):
@@ -111,13 +112,17 @@ class Amity(object):
             elif role == staff and accomodation == yes:
                 print("Staff members are not given accomodation, only offices")
                 return
+        #Generate a unique id for every person created        
+        fname = Person(fname)
+        fnameId = id(fname)
 
-        person_dict = {'fname': fname, 'lname': lname,
-                       'role': role, 'wants_accomodation': accomodation}
+        person_dict = {'fname': fname.fname, 'lname': lname,
+                       'role': role, 'wants_accomodation': accomodation, 'id': fnameId}
 
         self.persons_list.append(person_dict)
-
-        print ('%s %s has been created.' % (fname, lname))
+        print (person_dict)
+        print ('%s has been created with id %d.' %
+               (fname.fname, fnameId))
         # Before allocation room availability is confirrmed
         self.room_availability()
         # Allocate office to any person added
@@ -129,7 +134,7 @@ class Amity(object):
                 if self.office_list[room]['room_name'] == occupy:
                     self.office_list[room]['occupants'].append(fname)
                     print("%s has been added to %s" %
-                          (fname, self.office_list[room]['room_name']))
+                          (fname.fname, self.office_list[room]['room_name']))
                     break
                 else:
                     continue
@@ -144,16 +149,13 @@ class Amity(object):
                     if self.living_list[room]['room_name'] == occupy:
                         self.living_list[room]['occupants'].append(fname)
                         print("%s has been added to %s" %
-                              (fname, self.living_list[room]['room_name']))
+                              (fname.fname, self.living_list[room]['room_name']))
                         print(self.unfilled_living)
                         break
                     else:
                         continue
             else:
                 print("No Living space to allocate")
-
-    def add_person(self, fname, lname):
-        pass
 
     def remove_person(self, person_name):
         pass
@@ -178,8 +180,9 @@ class Office(Rooms):
         self.capacity = 6
 
 k = Amity()
-k.create_room({'room_name': 'Hogwarts', 'room_type': 'office'})
-k.create_room({'room_name': 'Go', 'room_type': 'living'})
+k.create_room(
+    {'room_name': ['Hogwarts', 'Krypton', 'Occulus'], 'room_type': 'office'})
+k.create_room({'room_name': ['Go', 'pearl', 'Arduino'], 'room_type': 'living'})
 k.create_person("paul", "Muthama", 'Fellow', 'Y')
 k.create_person("awesome", "Muthama", 'Fellow', 'Y')
 k.create_person("sxjhjshn", "Muthama", 'Fellow', 'Y')
