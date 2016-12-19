@@ -3,6 +3,7 @@ from people import Person, Staff, Fellow
 import random
 import uuid
 
+
 class Amity(object):
 
     def __init__(self):
@@ -198,7 +199,7 @@ class Amity(object):
     def print_room(self, room_name):
         print("x") * 60
         print(room_name.upper())
-        print("x") * 60        
+        print("x") * 60
         for room in range(len(self.office_list)):
             if room_name == self.office_list[room]['room_name']:
                 if len(self.office_list[room]['occupants']) > 1:
@@ -246,6 +247,25 @@ class Amity(object):
                     accomodation = person[3]
                 self.create_person(fname, lname, role, accomodation)
 
+    def print_allocations(self, file_name = None):
+        if file_name == None:
+            for room in range(len(self.rooms_list)):
+                print('-') * 50
+                print(self.rooms_list[room]['room_name'].upper())
+                print('-') * 50
+                if self.rooms_list[room]['occupants'] > 1:
+                    for occupant in self.rooms_list[room]['occupants']:
+                        print(self.return_names(occupant))
+        else:
+            with open(file_name, mode = 'w') as ins:
+                for room in range(len(self.rooms_list)):
+                    ins.write('--------------------------------------------------\n') 
+                    ins.write(self.rooms_list[room]['room_name'].upper() + '\n')
+                    ins.write('----------------------------------------------------\n') 
+                    if self.rooms_list[room]['occupants'] > 1:
+                        for occupant in self.rooms_list[room]['occupants']:
+                            ins.write(self.return_names(occupant) + ',')
+
 
 class Rooms (object):
 
@@ -257,9 +277,14 @@ class LivingSpace(Rooms):
     def __init__(self, room_name):
         self.capacity = 4
 
+
 class Office(Rooms):
     def __init__(self, room_name):
         self.capacity = 6
 
 k = Amity()
+k.create_room({'room_type': "office", "room_name": [
+              'Hogwarts', 'Occulus', 'Krypton', 'Narnia']})
+k.create_room({'room_type': 'living', 'room_name': ['Go', 'Pearl', 'PHP']})
 k.load_people('file.txt')
+k.print_allocations('new.txt')
