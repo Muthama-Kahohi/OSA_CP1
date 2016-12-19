@@ -51,6 +51,8 @@ class Amity(object):
                         self.rooms_list.append(room_name)
                         self.unfilled_rooms.append(room_name)
                         room_name = LivingSpace(room_name)
+                        print(self.unfilled_rooms)
+                        print('The rooms capacity is:%d ' % room_name.capacity)
                     else:
                         print("Room already exists")
 
@@ -133,6 +135,9 @@ class Amity(object):
         pass
     def reallocate(self, fname, room_name):
         pass    
+
+    def room_availability(self):
+          pass    
 
 
 class Rooms (object):
