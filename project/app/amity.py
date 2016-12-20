@@ -15,6 +15,7 @@ class Amity(object):
         self.allocated_persons = []
         self.unfilled_offices = []
         self.unfilled_living = []
+        self.unallocated_persons = []
 
     def create_room(self, to_create={}):
         if 'room_type' in to_create.keys() and 'room_name' in to_create.keys():
@@ -141,6 +142,8 @@ class Amity(object):
                 else:
                     continue
         else:
+            self.unallocated_persons.append(
+                {'fname': fname.fname, 'lname': lname, 'Lacks': 'Office'})
             print("No offices to allocate")
 
         if role == fellow and accomodation == yes:
@@ -157,6 +160,9 @@ class Amity(object):
                     else:
                         continue
             else:
+                self.unallocated_persons.append(
+                    {'fname': fname.fname, 'lname': lname, 'Lacks': 'Living space'})
+
                 print("No Living space to allocate")
 
     def remove_person(self, person_name):
@@ -247,7 +253,7 @@ class Amity(object):
                     accomodation = person[3]
                 self.create_person(fname, lname, role, accomodation)
 
-    def print_allocations(self, file_name = None):
+    def print_allocations(self, file_name=None):
         if file_name == None:
             for room in range(len(self.rooms_list)):
                 print('-') * 50
@@ -257,15 +263,49 @@ class Amity(object):
                     for occupant in self.rooms_list[room]['occupants']:
                         print(self.return_names(occupant))
         else:
-            with open(file_name, mode = 'w') as ins:
+            with open(file_name, mode='w') as ins:
                 for room in range(len(self.rooms_list)):
-                    ins.write('--------------------------------------------------\n') 
-                    ins.write(self.rooms_list[room]['room_name'].upper() + '\n')
-                    ins.write('----------------------------------------------------\n') 
+                    ins.write(
+                        '--------------------------------------------------\n')
+                    ins.write(self.rooms_list[room][
+                              'room_name'].upper() + '\n')
+                    ins.write(
+                        '----------------------------------------------------\n')
                     if self.rooms_list[room]['occupants'] > 1:
                         for occupant in self.rooms_list[room]['occupants']:
                             ins.write(self.return_names(occupant) + ',')
 
+    def print_unallocated(self, file_name=None):
+        if file_name == None:
+            print("Persons Unallocated offices")
+            print('-') * 50
+            for person in range(len(self.unallocated_persons)):
+                if self.unallocated_persons[person]['Lacks'] == "Office":
+                    print(self.unallocated_persons[person][
+                          'fname'] + ' ' + self.unallocated_persons[person]['lname'])
+            print("Persons Unallocated Living Spaces")
+            print('-') * 50
+            for person in range(len(self.unallocated_persons)):
+                if self.unallocated_persons[person]['Lacks'] == "Living Space":
+                    print(self.unallocated_persons[person][
+                          'fname'] + ' ' + self.unallocated_persons[person]['lname'])
+
+        else:
+            with open(file_name, mode = 'w') as ins:
+                ins.write("Persons Unallocated offices\n")
+                ins.write('----------------------------\n')
+                for person in range(len(self.unallocated_persons)):
+                    if self.unallocated_persons[person]['Lacks'] == "Office":
+                        ins.write(self.unallocated_persons[person][
+                              'fname'] + ' ' + self.unallocated_persons[person]['lname'] + '\n')
+                ins.write('------------------------------------------------\n\n')
+
+                ins.write("Persons Unallocated Living Spaces \n")
+                ins.write('-----------------------------------\n') 
+                for person in range(len(self.unallocated_persons)):
+                    if self.unallocated_persons[person]['Lacks'] == "Living Space":
+                        ins.write(self.unallocated_persons[person][
+                              'fname'] + ' ' + self.unallocated_persons[person]['lname'] + '\n')            
 
 class Rooms (object):
 
@@ -283,8 +323,8 @@ class Office(Rooms):
         self.capacity = 6
 
 k = Amity()
-k.create_room({'room_type': "office", "room_name": [
-              'Hogwarts', 'Occulus', 'Krypton', 'Narnia']})
-k.create_room({'room_type': 'living', 'room_name': ['Go', 'Pearl', 'PHP']})
+# k.create_room({'room_type': "office", "room_name": [
+#               'Hogwarts', 'Occulus']})
+k.create_room({'room_type': 'living', 'room_name': ['Go']})
 k.load_people('file.txt')
-k.print_allocations('new.txt')
+k.print_unallocated('new.txt')
