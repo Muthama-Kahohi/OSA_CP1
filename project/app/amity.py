@@ -2,6 +2,10 @@ from random import randint
 from people import Person, Staff, Fellow
 import random
 import uuid
+from db.db_manager import AmityRooms, Persons, create_db, Base
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql import text, select
 
 
 class Amity(object):
@@ -26,7 +30,7 @@ class Amity(object):
                     room_name = to_create['room_name']
                     if room_name not in self.office_list:
                         self.office_list.append(
-                            {'room_name': room_name, "occupants": []})
+                            {'room_name': room_name, 'room_type': room_type, "occupants": []})
                         self.rooms_list.append(room_name)
                         self.unfilled_offices.append(room_name)
                         room_name = Office(room_name)
@@ -39,7 +43,7 @@ class Amity(object):
                         room_name = item
                         if room_name not in self.office_list:
                             self.office_list.append(
-                                {'room_name': room_name, "occupants": []})
+                                {'room_name': room_name, 'room_type': room_type, "occupants": []})
                             self.rooms_list.append(room_name)
                             self.unfilled_offices.append(room_name)
                             room_name = Office(room_name)
@@ -52,7 +56,7 @@ class Amity(object):
                     room_name = to_create['room_name']
                     if room_name not in self.living_list:
                         self.living_list.append(
-                            {'room_name': room_name, "occupants": []})
+                            {'room_name': room_name, 'room_type': room_type, "occupants": []})
                         self.rooms_list.append(room_name)
                         self.unfilled_living.append(room_name)
                         room_name = LivingSpace(room_name)
@@ -66,7 +70,7 @@ class Amity(object):
                         room_name = item
                         if room_name not in self.living_list:
                             self.living_list.append(
-                                {'room_name': room_name, 'occupants': []})
+                                {'room_name': room_name, 'room_type': room_type, "occupants": []})
                             self.rooms_list.append(room_name)
                             self.unfilled_living.append(room_name)
                             room_name = LivingSpace(room_name)
@@ -117,14 +121,14 @@ class Amity(object):
                 return
         # Generate a unique id for every person created
         fname = Person(fname)
-        fnameId = uuid.uuid4()
+        fnameId = str(uuid.uuid4())
 
         person_dict = {'fname': fname.fname, 'lname': lname,
                        'role': role, 'wants_accomodation': accomodation, 'id': fnameId}
 
         self.persons_list.append(person_dict)
         print (person_dict)
-        print ('%s has been created with id %d.' %
+        print ('%s has been created with id %s.' %
                (fname.fname, fnameId))
         # Before allocation room availability is confirrmed
         self.room_availability()
@@ -167,6 +171,33 @@ class Amity(object):
 
     def remove_person(self, person_name):
         pass
+
+    def return_office_name(self, id):
+        '''returns the name of the office in which a particular id is in'''
+        found = False
+        for room in range(len(self.office_list)):
+            if id not in self.office_list[room]['occupants']:
+                continue
+            else:
+                ron = self.office_list[room]['room_name']
+                found = True
+        if found:
+            return ron
+        else:
+            return 'None' 
+
+    def return_living_name(self, id):
+        found = False
+        for room in range(len(self.living_list)):
+            if id not in self.living_list[room]['occupants']:
+                continue
+            else:
+                rln = self.living_list[room]['room_name']
+                found = True
+        if found:
+            return rln
+        else:
+            return 'None' 
 
     def reallocate(self, id, room_to):
         for room in range(len(self.office_list)):
@@ -291,21 +322,61 @@ class Amity(object):
                           'fname'] + ' ' + self.unallocated_persons[person]['lname'])
 
         else:
-            with open(file_name, mode = 'w') as ins:
+            with open(file_name, mode='w') as ins:
                 ins.write("Persons Unallocated offices\n")
                 ins.write('----------------------------\n')
                 for person in range(len(self.unallocated_persons)):
                     if self.unallocated_persons[person]['Lacks'] == "Office":
                         ins.write(self.unallocated_persons[person][
-                              'fname'] + ' ' + self.unallocated_persons[person]['lname'] + '\n')
+                            'fname'] + ' ' + self.unallocated_persons[person]['lname'] + '\n')
                 ins.write('------------------------------------------------\n\n')
 
                 ins.write("Persons Unallocated Living Spaces \n")
-                ins.write('-----------------------------------\n') 
+                ins.write('-----------------------------------\n')
                 for person in range(len(self.unallocated_persons)):
                     if self.unallocated_persons[person]['Lacks'] == "Living Space":
                         ins.write(self.unallocated_persons[person][
-                              'fname'] + ' ' + self.unallocated_persons[person]['lname'] + '\n')            
+                            'fname'] + ' ' + self.unallocated_persons[person]['lname'] + '\n')
+
+    def save_state(self, db_name):
+        engine = create_db(db_name)
+        Base.metadata.bind = engine
+        Session = sessionmaker()
+        session = Session()
+        # Selects all the items in the Rooms table
+        items = select([AmityRooms])
+        result = session.execute(items)
+        dbrooms_list = [item.room_name for item in result]
+        for room in range(len(self.rooms_list)):
+            if self.rooms_list[room]['room_name'] not in dbrooms_list:
+                new_room = AmityRooms(room_name=self.rooms_list[room]['room_name'],
+                                      room_type=self.rooms_list[room]['room_type'])
+                session.add(new_room)
+                session.commit()
+
+        andelans = select([Persons])
+        response = session.execute(andelans)
+        dbpersons_list = [item.andela_id for item in response]
+
+        for andelan in range(len(self.persons_list)):
+            idk = self.persons_list[andelan]['id']
+            if idk not in dbpersons_list:
+                officename = self.return_office_name(idk)
+                livingname = self.return_living_name(idk)
+                fname = self.persons_list[andelan]['fname']
+                lname = self.persons_list[andelan]['lname']
+                role = self.persons_list[andelan]['role']
+                accomodation = self.persons_list[andelan]['wants_accomodation']
+                new_person = Persons(fname=fname,
+                                     lname=lname,
+                                     role=role,
+                                     accomodation=accomodation,
+                                     andela_id=idk,
+                                     office_allocated=officename,
+                                     living_allocated=livingname)
+                session.add(new_person)
+                session.commit()
+
 
 class Rooms (object):
 
@@ -323,8 +394,10 @@ class Office(Rooms):
         self.capacity = 6
 
 k = Amity()
-# k.create_room({'room_type': "office", "room_name": [
-#               'Hogwarts', 'Occulus']})
+k.create_room({'room_type': "office", "room_name": [
+              'Hogwarts', 'Occulus']})
 k.create_room({'room_type': 'living', 'room_name': ['Go']})
 k.load_people('file.txt')
-k.print_unallocated('new.txt')
+print(k.living_list)
+print(k.persons_list)
+k.save_state('savestate')
