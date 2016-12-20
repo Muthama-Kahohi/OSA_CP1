@@ -20,6 +20,7 @@ class Amity(object):
         self.unfilled_offices = []
         self.unfilled_living = []
         self.unallocated_persons = []
+        self.rooms_from_db = []
 
     def create_room(self, to_create={}):
         if 'room_type' in to_create.keys() and 'room_name' in to_create.keys():
@@ -184,7 +185,7 @@ class Amity(object):
         if found:
             return ron
         else:
-            return 'None' 
+            return 'None'
 
     def return_living_name(self, id):
         found = False
@@ -197,7 +198,7 @@ class Amity(object):
         if found:
             return rln
         else:
-            return 'None' 
+            return 'None'
 
     def reallocate(self, id, room_to):
         for room in range(len(self.office_list)):
@@ -338,7 +339,7 @@ class Amity(object):
                         ins.write(self.unallocated_persons[person][
                             'fname'] + ' ' + self.unallocated_persons[person]['lname'] + '\n')
 
-    def save_state(self, db_name):
+    def save_state(self, db_name='amity'):
         engine = create_db(db_name)
         Base.metadata.bind = engine
         Session = sessionmaker()
@@ -377,6 +378,28 @@ class Amity(object):
                 session.add(new_person)
                 session.commit()
 
+    def load_state(self, db_name):
+        # create engine
+        engine = create_engine('sqlite:///' + db_name)
+        # Bind engine to Base Metadata
+        Base.metadata.bind = engine
+        # creates session
+        Session = sessionmaker(bind=engine)
+        session = Session()
+
+        # Selects all the items in the Items table
+        items = select([AmityRooms])
+        result = session.execute(items)
+
+        items_list = []
+
+        # orders the result to enable  tabulation
+        for item in result.fetchall():
+            name = item.room_name
+            rtype = item.room_type
+            self.rooms_list.append({'room_name':name,'room_type':rtype, 'occupants':[]})
+        session.close()
+        print(self.rooms_list)
 
 class Rooms (object):
 
@@ -394,10 +417,11 @@ class Office(Rooms):
         self.capacity = 6
 
 k = Amity()
-k.create_room({'room_type': "office", "room_name": [
-              'Hogwarts', 'Occulus']})
-k.create_room({'room_type': 'living', 'room_name': ['Go']})
-k.load_people('file.txt')
-print(k.living_list)
-print(k.persons_list)
-k.save_state('savestate')
+# k.create_room({'room_type': "office", "room_name": [
+#               'Hogwarts', 'Occulus']})
+# k.create_room({'room_type': 'living', 'room_name': ['Go']})
+# k.load_people('file.txt')
+# print(k.living_list)
+# print(k.persons_list)
+# k.save_state('savestate')
+k.load_state('savestate')
