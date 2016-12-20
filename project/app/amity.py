@@ -387,7 +387,7 @@ class Amity(object):
         Session = sessionmaker(bind=engine)
         session = Session()
 
-        # Selects all the items in the Items table
+        # Selects all the rooms in the Rooms table
         items = select([AmityRooms])
         result = session.execute(items)
 
@@ -397,9 +397,35 @@ class Amity(object):
         for item in result.fetchall():
             name = item.room_name
             rtype = item.room_type
-            self.rooms_list.append({'room_name':name,'room_type':rtype, 'occupants':[]})
+            self.rooms_list.append(
+                {'room_name': name, 'room_type': rtype, 'occupants': []})
         session.close()
-        print(self.rooms_list)
+
+        # Selects all the rooms in the Rooms table
+        items = select([Persons])
+        result = session.execute(items)
+
+        items_list = []
+
+        # orders the result to enable  tabulation
+        for item in result.fetchall():
+            fname = item.fname
+            lname = item.lname
+            role = item.role
+            accomodation = item.accomodation
+            andela_id = item.andela_id
+            office_allo = item.office_allocated
+            living_allo = item.living_allocated
+
+            self.persons_list.append(
+                {'fname':fname,'lname':lname,'role':role ,'wants_accomodation':accomodation, 'id':andela_id})
+            for room in range(len(self.rooms_list)):
+                if self.rooms_list[room]['room_name'] == office_allo or self.rooms_list[room]['room_name'] == living_allo:
+                    self.rooms_list[room]['occupants'].append(andela_id)
+        session.close()
+        # print(self.rooms_list)
+        print(self.persons_list)
+
 
 class Rooms (object):
 
