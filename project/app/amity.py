@@ -6,6 +6,7 @@ from db.db_manager import AmityRooms, Persons, create_db, Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import text, select
+from termcolor import colored
 
 
 class Amity(object):
@@ -97,29 +98,40 @@ class Amity(object):
                 self.unfilled_living.remove(room_name)
         print("Room availability check done************")
 
-    def create_person(self, fname, lname, role, accomodation):
-        role, accomodation = role.upper(), accomodation.upper()
+    def create_person(self, fname, lname, role, accomodation = 'N'):
+        role = role.upper()
         fellow, staff, yes, no = 'FELLOW', 'STAFF', 'Y', 'N'
         # Ensure that the  first name and last name are strings
-        if type(fname) is not str or type(lname) is not str:
-            print("The names should be of type string")
-            return
-        # Ensures that invalid roles are not added
-        if role != fellow and role != staff:
-            print("Role can only be either a fellow or a staff")
-            return
+        try:
+            if type(fname) is not str or type(lname) is not str:
+                print("The names should be of type string")
+                raise ValueError
+                return
+            # Ensures that invalid roles are not added
+            if role != fellow and role != staff:
+                print("Role can only be either a fellow or a staff")
+                raise ValueError
+                return
+        except ValueError:
+            print(colored("Invalid values. Please try again", "red"))
+            return        
         # Ensure that accomoadation can only be Y or N
-        if type(accomodation) is not str and type(accomodation) is not str:
-            raise TypeError
-            print("Invalid accomodation choice")
-            return
-        else:
-            if accomodation != yes and accomodation != no:
-                print("Accomodation choice should either be Y or N")
+        try:
+            if type(accomodation) is not str and type(accomodation) is not str:
+                raise TypeError
+                print("Invalid accomodation choice")
                 return
-            elif role == staff and accomodation == yes:
-                print("Staff members are not given accomodation, only offices")
-                return
+            else:
+                accomodation = accomodation.upper()            
+                if accomodation != yes and accomodation != no:
+                    print("Accomodation choice should either be Y or N")
+                    return
+                elif role == staff and accomodation == yes:
+                    print("Staff members are not given accomodation, only offices")
+                    return
+        except TypeError:
+            print(colored("Invalid values. Please try again")) 
+            return           
         # Generate a unique id for every person created
         fname = Person(fname)
         fnameId = str(uuid.uuid4())
@@ -128,9 +140,13 @@ class Amity(object):
                        'role': role, 'wants_accomodation': accomodation, 'id': fnameId}
 
         self.persons_list.append(person_dict)
-        print (person_dict)
-        print ('%s has been created with id %s.' %
-               (fname.fname, fnameId))
+        
+        # print ('%s has been created with id %s.' %
+        #        (fname.fname, fnameId))
+        print (colored("************************************************************", "yellow"))
+        print(colored("%s has been created" % fname.fname, "blue"))
+        print (colored("************************************************************", "yellow"))
+
         # Before allocation room availability is confirrmed
         self.room_availability()
         # Allocate office to any person added
@@ -141,15 +157,16 @@ class Amity(object):
             for room in range(len(self.office_list)):
                 if self.office_list[room]['room_name'] == occupy:
                     self.office_list[room]['occupants'].append(fnameId)
-                    print("%s has been added to %s" %
-                          (fname.fname, self.office_list[room]['room_name']))
+                    print(colored("%s has been added to %s" %
+                          (fname.fname, self.office_list[room]['room_name']), "blue"))
+                    self.allocated_persons.append(fname.fname)
                     break
                 else:
                     continue
         else:
             self.unallocated_persons.append(
                 {'fname': fname.fname, 'lname': lname, 'Lacks': 'Office'})
-            print("No offices to allocate")
+            print(colored("No offices to allocate","red"))
 
         if role == fellow and accomodation == yes:
             if len(self.unfilled_living) > 0:
@@ -158,8 +175,8 @@ class Amity(object):
                 for room in range(len(self.living_list)):
                     if self.living_list[room]['room_name'] == occupy:
                         self.living_list[room]['occupants'].append(fnameId)
-                        print("%s has been added to %s" %
-                              (fname.fname, self.living_list[room]['room_name']))
+                        print(colored("%s has been added to %s" %
+                              (fname.fname, self.living_list[room]['room_name']), "blue"))
                         print(self.unfilled_living)
                         break
                     else:
@@ -168,10 +185,7 @@ class Amity(object):
                 self.unallocated_persons.append(
                     {'fname': fname.fname, 'lname': lname, 'Lacks': 'Living space'})
 
-                print("No Living space to allocate")
-
-    def remove_person(self, person_name):
-        pass
+                print(colored("No Living space to allocate","red"))
 
     def return_office_name(self, id):
         '''returns the name of the office in which a particular id is in'''
@@ -391,8 +405,6 @@ class Amity(object):
         items = select([AmityRooms])
         result = session.execute(items)
 
-        items_list = []
-
         # orders the result to enable  tabulation
         for item in result.fetchall():
             name = item.room_name
@@ -443,11 +455,11 @@ class Office(Rooms):
         self.capacity = 6
 
 k = Amity()
-# k.create_room({'room_type': "office", "room_name": [
-#               'Hogwarts', 'Occulus']})
-# k.create_room({'room_type': 'living', 'room_name': ['Go']})
-# k.load_people('file.txt')
+k.create_room({'room_type': "office", "room_name": [
+              'Hogwarts', 'Occulus']})
+k.create_room({'room_type': 'living', 'room_name': ['Go']})
+# k.load_people('nfile.txt')
 # print(k.living_list)
 # print(k.persons_list)
-# k.save_state('savestate')
-k.load_state('savestate')
+k.save_state('savestate')
+# k.load_state('savestate')

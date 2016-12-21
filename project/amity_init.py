@@ -29,7 +29,7 @@ init()
 from pyfiglet import Figlet
 
 # import my modules
-
+from app.Amity import Amity
 
 def docopt_cmd(func):
     """
@@ -65,9 +65,12 @@ def docopt_cmd(func):
 
 class AmitySpaceAllocation (cmd.Cmd):
     f = Figlet(font='slant')
-
+    dojo = Amity()
     # Makes the interface look better
     print(Fore.GREEN + f.renderText('Amity Space Allocation ')).center(10)
+    print(Fore.YELLOW + ('Type help to get a list of commands')).center(70)
+    print(Fore.YELLOW + ('Type a command to get the arguments it requires')).center(70)
+
 
     prompt = '(amity) '
     file = None
@@ -75,13 +78,21 @@ class AmitySpaceAllocation (cmd.Cmd):
     @docopt_cmd
     def do_create_room(self, arg):
         """Usage: create_room <room_type> ..."""
-        room_type
+        room_type = arg ['room_type']
 
     @docopt_cmd
     def do_create_person(self, arg):
         """Usage: create_person <fname> <lname> <role> [<accomodation>]  
         """
-        listitems()
+        try:
+            first_name = str(arg['<fname>'])
+            last_name = str(arg['<lname>'])
+            role = str(arg['<role>'])
+            accomodation = str(arg['<accomodation>'])
+        except TypeError:
+            print("You have to pass names")    
+        print (accomodation)
+        self.dojo.create_person(first_name, last_name, role, accomodation)
 
     @docopt_cmd
     def do_load_people(self, arg):
