@@ -1,16 +1,13 @@
 class Person(object):
     def __init__(self):
-        pass
-
-    def add_person():
-        pass
+        self.office_allocated = ""
 
 
 class Fellow(Person):
     def __init__(self):
-        pass
+        self.living_accomodation = "N"
 
 
 class Staff(Person):
     def __init__(self):
-        pass
+        self.living_accomodation = ""
