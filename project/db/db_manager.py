@@ -22,8 +22,8 @@ class Persons(Base):
     role = Column(String(20), nullable=False)
     accomodation = Column(String(20), nullable=False, default='N')
     andela_id = Column(String(100), nullable=True)
-    office_allocated = Column(Integer, nullable=True)
-    living_allocated = Column(Integer, nullable=True)
+    office_allocated = Column(String(20), nullable=True)
+    living_allocated = Column(String(20), nullable=True)
 
 
 def create_db(db_name):
