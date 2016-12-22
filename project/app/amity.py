@@ -411,7 +411,7 @@ class Amity(object):
                                      living_allocated=livingname)
                 session.add(new_person)
                 session.commit()
-        print(colored("Application data successfully daved to the database >> %s" %db_name, "red"))        
+        print(colored("Application data successfully saved to the database >> %s" %db_name, "red"))        
 
     def load_state(self, db_name):
         # create engine
@@ -431,11 +431,19 @@ class Amity(object):
             name = item.room_name
             rtype = item.room_type
             if  rtype == 'office':
-                self.office_list.append(
-                      {'room_name': name, 'room_type': rtype, 'occupants': []})
+                for room in self.office_list:
+                    if name in room["room_name"]:
+                        continue
+                    else:    
+                        self.office_list.append(
+                              {'room_name': name, 'room_type': rtype, 'occupants': []})
             else:
-                self.living_list.append(
-                      {'room_name': name, 'room_type': rtype, 'occupants': []})                
+                for room in self.living_list:
+                    if name in room["room_name"]:
+                        continue
+                    else:    
+                        self.living_list.append(
+                              {'room_name': name, 'room_type': rtype, 'occupants': []})
 
         session.close()
 
