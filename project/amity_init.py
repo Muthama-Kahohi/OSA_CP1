@@ -27,9 +27,11 @@ from docopt import docopt, DocoptExit
 from colorama import init, Fore
 init()
 from pyfiglet import Figlet
+from termcolor import colored
 
 # import my modules
 from app.Amity import Amity
+
 
 def docopt_cmd(func):
     """
@@ -71,14 +73,23 @@ class AmitySpaceAllocation (cmd.Cmd):
     print(Fore.YELLOW + ('Type help to get a list of commands')).center(70)
     print(Fore.YELLOW + ('Type a command to get the arguments it requires')).center(70)
 
-
     prompt = '(amity) '
     file = None
 
     @docopt_cmd
     def do_create_room(self, arg):
-        """Usage: create_room <room_type> ..."""
-        room_type = arg ['room_type']
+        """Usage: create_room <room_type> <room_name>..."""
+        try:
+            room_type = str(arg['<room_type>'])
+            room_list = arg['<room_name>']
+            if len(room_list) == 1:
+                self.dojo.create_room(
+                    {"room_type": room_type, "room_name": str(room_list[0])})
+            else:
+                self.dojo.create_room(
+                    {"room_type": room_type, "room_name": room_list})
+        except TypeError:
+            print(colored("The Values shoud be strings"))
 
     @docopt_cmd
     def do_create_person(self, arg):
@@ -90,51 +101,74 @@ class AmitySpaceAllocation (cmd.Cmd):
             role = str(arg['<role>'])
             accomodation = str(arg['<accomodation>'])
         except TypeError:
-            print("You have to pass names")    
-        print (accomodation)
+            print("You have to pass names")
         self.dojo.create_person(first_name, last_name, role, accomodation)
 
     @docopt_cmd
     def do_load_people(self, arg):
-        """Usage: load_people <file_name>.
+        """Usage: load_people <file_name>
         """
-        itemid = arg['<file_name>']
-        r
+        file_name = arg['<file_name>']
+        file_name = file_name + ".txt"
+        self.dojo.load_people(file_name)
 
     @docopt_cmd
     def do_print_allocations(self, arg):
-        """Usage:print_allocations [<file_name>] """
-        itemid = arg['[<file_name>']
+        """Usage: print_allocations [<file_name>]
+        """
+        file_name = arg['<file_name>']
+        if file_name:
+            file_name = file_name + ".txt"
+            self.dojo.print_allocations(file_name)
+        else:
+            self.dojo.print_allocations()       
+
 
     @docopt_cmd
     def do_print_unallocated(self, arg):
         """Usage: print_unallocated [<file_name>]
         """
-        itemid = arg['[<file_name>]']
-        check_out(itemid)
+        file_name = arg['<file_name>']
+        if file_name:
+            file_name = file_name + ".txt"
+            self.dojo.print_unallocated(file_name)
+        else:
+            self.dojo.print_unallocated()       
 
     @docopt_cmd
     def do_print_room(self, arg):
         """Usage: print_room <room_name>
 
         """
-        itemid = arg['<item_id>']
-        view(itemid)
+        room_name = arg['<room_name>']
+        self.dojo.print_room(room_name)
+    
+    @docopt_cmd
+    def do_save_state(self, arg):
+        """Usage: save_state [<database_name>]"""
+        db_name = arg['<database_name>']
+        self.dojo.save_state(db_name)        
 
     @docopt_cmd
     def do_load_state(self, arg):
         """Usage: load_state <database_name> 
 
         """
-        search_string = arg['<search_string>']
+        try:
+            db_name = str(arg['<database_name>'])
+            self.dojo.load_state(db_name)
+        except TypeError:
+            print(colored("Invalid database name"))    
 
     @docopt_cmd
-    def do_save_state(self, args):
-        """Usage: save_state [<database_name>]
-
-        """
-
-        file_name = args['<file_name>']
+    def do_reallocate(self, arg):
+        """Usage: load_state <id> <room_to> """
+        try:
+            id = str(arg['<id>'])
+            room_to = arg["<room_to>"]
+            self.dojo.reallocate(id, room_to)
+        except TypeError:
+            print(colored("Invalid database name"))  
 
     def do_quit(self, arg):
         """Quits out of Interactive Mode."""
