@@ -220,30 +220,32 @@ class Amity(object):
         else:
             return 'None'
 
-    def reallocate(self, id, room_to):        
-        for room in range(len(self.office_list)):
-            for occupant in range(len(self.office_list[room]['occupants'])):
-                if occupant == id:
-                    self.office_list[room]['occupants'].remove(id)
-                    print(colored("Succesfully removed from %s" %self.office_list[room]['room_name'], "green"))
-                    break
+    def reallocate(self, occupant_id, room_from, room_to):
+        for room in self.room_list:
+            if room_from in room['room_name']:
+                rtype = room['room_type']
+                if rtype == 'office':
+                    for room in self.office_list:
+                        if occupant_id in room['occupants']:
+                            room['occupants'].remove(occupant_id)
+                        else:
+                            print(colored("Occupant not in the room"))
                 else:
-                    continue
-        for room in range(len(self.living_list)):
-            for occupant in range(len(self.living_list[room]['occupants'])):
-                if occupant == id:
-                    self.office_list[room]['occupants'].remove(id)
-                    print(colored("Succesfully removed from %s" %self.living_list[room]['room_name'], "green"))
-                    break
-                else:
-                    continue
+                    for room in self.living_list:
+                        if occupant_id in room['occupants']:
+                            room['occupants'].remove(occupant_id)
+                            print("Successfully removed from %s" %room['room_name'])
+                        else:
+                            print(colored("Occupant not in the room"))    
+
+
         # Ensure that a member is reallocated to an unfilled room
         vacant_rooms = self.unfilled_living + self.unfilled_offices
         if room_to in vacant_rooms:
             for room in range(len(self.office_list)):
                 if self.office_list[room]['room_name'] == room_to:
                     self.office_list[room]['occupants'].append(id)
-                    print(colored("Succesfully added to %s" %self.office_list[room]['room_name'], "green"))
+                    print(colored("Succesfully reallocated to %s" %self.office_list[room]['room_name'], "green"))
                     break
                 else:
                     continue
@@ -251,7 +253,7 @@ class Amity(object):
             for room in range(len(self.living_list)):
                 if self.living_list[room]['room_name'] == room_to:
                     self.living_list[room]['occupants'].append(id)
-                    print(colored("Succesfully added to %s" %self.living_list[room]['room_name'], "green"))
+                    print(colored("Succesfully reallocated to %s" %self.living_list[room]['room_name'], "green"))
                     break
                 else:
                     continue
@@ -322,7 +324,8 @@ class Amity(object):
                 print(colored("-------------------------------------------", "white"))
                 if self.rooms_list[room]['occupants'] > 1:
                     for occupant in self.rooms_list[room]['occupants']:
-                        print(colored(self.return_names(occupant), "yellow"))            
+                        print(colored(self.return_names(occupant), "yellow"))
+            print("I passed")            
 
         else:
             with open(self.file_name, mode='w') as ins:
@@ -335,7 +338,7 @@ class Amity(object):
                         '----------------------------------------------------\n')
                     if self.rooms_list[room]['occupants'] > 1:
                         for occupant in self.rooms_list[room]['occupants']:
-                            ins.write(self.return_names(occupant) + " ")            
+                            ins.write(self.return_names(occupant) + " ")
 
 
     def print_unallocated(self, file_name=None):
@@ -462,9 +465,11 @@ class Amity(object):
                     self.office_list[room]['occupants'].append(andela_id)
             for room in range(len(self.living_list)):
                 if self.living_list[room]['room_name'] == living_allo: 
-                    self.living_list[room]['occupants'].append(andela_id)     
-        self.room_list = self.office_list + self.living_list 
-        print(self.office_list)           
+                    self.living_list[room]['occupants'].append(andela_id) 
+            self.unfilled_offices = [self.office_list[room]['room_name'] for room in range(len(self.office_list)) if len(self.office_list[room]['occupants']) < 6] 
+            self.unfilled_living = [self.living_list[room]['room_name'] for room in range(len(self.living_list)) if len(self.living_list[room]['occupants']) < 4]          
+
+        self.room_list = self.office_list + self.living_list          
         session.close()
         print(colored("Data successfuly added to the application", "green"))
   
