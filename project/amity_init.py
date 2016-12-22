@@ -13,6 +13,7 @@ Usage:
     amity print_room <room_name>
     amity load_state <database_name>
     amity save_state [<db_name>]
+    amity reallocate id room_from room_to
 Options:
     -i, --interactive  Interactive Mode
     -h, --help  Show this screen and exit.
@@ -154,19 +155,19 @@ class AmitySpaceAllocation (cmd.Cmd):
         """Usage: load_state <database_name> 
 
         """
-        try:
-            db_name = str(arg['<database_name>'])
-            self.dojo.load_state(db_name)
-        except TypeError:
-            print(colored("Invalid database name"))    
+
+        db_name = str(arg['<database_name>'])
+        self.dojo.load_state(db_name)
+
 
     @docopt_cmd
     def do_reallocate(self, arg):
-        """Usage: load_state <id> <room_to> """
+        """Usage: reallocate <id> <room_from> <room_to> """
         try:
             id = str(arg['<id>'])
             room_to = arg["<room_to>"]
-            self.dojo.reallocate(id, room_to)
+            room_from = arg["<room_from>"]
+            self.dojo.reallocate(id, room_from, room_to)
         except TypeError:
             print(colored("Invalid database name"))  
 
