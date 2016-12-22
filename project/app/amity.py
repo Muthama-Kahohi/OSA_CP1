@@ -140,17 +140,15 @@ class Amity(object):
         except TypeError:
             print(colored("Invalid values. Please try again")).center(70) 
             return           
-        # Generate a unique id for every person created
-        fname = Person(fname)
-        fnameId = str(uuid.uuid4())
+        fnameId = str(uuid.uuid4())[:5:]
 
-        person_dict = {'fname': fname.fname, 'lname': lname,
+        person_dict = {'fname': fname, 'lname': lname,
                        'role': role, 'wants_accomodation': accomodation, 'id': fnameId}
 
         self.persons_list.append(person_dict)
         
         print (colored("************************************************************", "yellow")).center(70)
-        print(colored("%s has been created" % fname.fname, "blue")).center(70)
+        print(colored("%s has been created" % fname, "blue")).center(70)
         print (colored("************************************************************", "yellow")).center(70)
 
         # Before allocation room availability is confirrmed
@@ -164,14 +162,14 @@ class Amity(object):
                 if self.office_list[room]['room_name'] == occupy:
                     self.office_list[room]['occupants'].append(fnameId)
                     print(colored("%s has been added to %s" %
-                          (fname.fname, self.office_list[room]['room_name']), "blue")).center(70)
-                    self.allocated_persons.append(fname.fname)
+                          (fname, self.office_list[room]['room_name']), "blue")).center(70)
+                    self.allocated_persons.append(fname)
                     break
                 else:
                     continue
         else:
             self.unallocated_persons.append(
-                {'fname': fname.fname, 'lname': lname, 'Lacks': 'Office'})
+                {'fname': fname, 'lname': lname, 'Lacks': 'Office'})
             print(colored("No offices to allocate","red")).center(70)
 
         if role == fellow and accomodation == yes:
@@ -182,14 +180,14 @@ class Amity(object):
                     if self.living_list[room]['room_name'] == occupy:
                         self.living_list[room]['occupants'].append(fnameId)
                         print(colored("%s has been added to %s" %
-                              (fname.fname, self.living_list[room]['room_name']), "blue")).center(70)
+                              (fname, self.living_list[room]['room_name']), "blue")).center(70)
                         print(self.unfilled_living)
                         break
                     else:
                         continue
             else:
                 self.unallocated_persons.append(
-                    {'fname': fname.fname, 'lname': lname, 'Lacks': 'Living space'})
+                    {'fname': fname, 'lname': lname, 'Lacks': 'Living space'})
 
                 print(colored("No Living space to allocate","red")).center(70)
 
@@ -271,7 +269,7 @@ class Amity(object):
                         print(colored(self.return_names(occupant), "white")).center(70)
                     break
                 else:
-                    print(colored("No occupants", "red")).center(150)
+                    print(colored("No occupants", "red")).center(700)
             else:
                 continue
 
@@ -282,7 +280,7 @@ class Amity(object):
                         print(colored(self.return_names(occupant), "white")).center(70)
                     break
                 else:
-                    print(colored("No occupants", "red")).center(150)
+                    print(colored("No occupants", "red")).center(70)
             else:
                 continue
 
@@ -325,7 +323,6 @@ class Amity(object):
                 if self.rooms_list[room]['occupants'] > 1:
                     for occupant in self.rooms_list[room]['occupants']:
                         print(colored(self.return_names(occupant), "yellow"))
-            print("I passed")            
 
         else:
             with open(self.file_name, mode='w') as ins:
