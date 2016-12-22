@@ -6,7 +6,7 @@ Usage:
     amity (-i | --interactive)
     amity (-h | --help | --version)
     amity create_room <room_type> ...
-    amity create_person <fname> <lname> <role> [<accomodation>] 
+    amity add_person <fname> <lname> <role> [<accomodation>] 
     amity load_people <file_name>
     amity print_allocations [<file_name>]
     amity print_unallocated [<file_name>]
@@ -93,22 +93,23 @@ class AmitySpaceAllocation (cmd.Cmd):
             print(colored("The Values shoud be strings"))
 
     @docopt_cmd
-    def do_create_person(self, arg):
-        """Usage: create_person <fname> <lname> <role> [<accomodation>]  
+    def do_add_person(self, arg):
+        """Usage: add_person <fname> <lname> <role> [<accomodation>]  
         """
         try:
             first_name = str(arg['<fname>'])
             last_name = str(arg['<lname>'])
             role = str(arg['<role>'])
             accomodation = arg['<accomodation>']
-    
+
         except TypeError:
             print("You have to pass names")
         if accomodation == None:
             wants_accomodation = 'N'
         else:
-            wants_accomodation = accomodation    
-        self.dojo.create_person(first_name, last_name, role, wants_accomodation)
+            wants_accomodation = accomodation
+        self.dojo.create_person(first_name, last_name,
+                                role, wants_accomodation)
 
     @docopt_cmd
     def do_load_people(self, arg):
@@ -127,8 +128,7 @@ class AmitySpaceAllocation (cmd.Cmd):
             file_name = file_name + ".txt"
             self.dojo.print_allocations(file_name)
         else:
-            self.dojo.print_allocations()       
-
+            self.dojo.print_allocations()
 
     @docopt_cmd
     def do_print_unallocated(self, arg):
@@ -139,7 +139,7 @@ class AmitySpaceAllocation (cmd.Cmd):
             file_name = file_name + ".txt"
             self.dojo.print_unallocated(file_name)
         else:
-            self.dojo.print_unallocated()       
+            self.dojo.print_unallocated()
 
     @docopt_cmd
     def do_print_room(self, arg):
@@ -148,12 +148,16 @@ class AmitySpaceAllocation (cmd.Cmd):
         """
         room_name = arg['<room_name>']
         self.dojo.print_room(room_name)
-    
+
     @docopt_cmd
     def do_save_state(self, arg):
         """Usage: save_state [<database_name>]"""
+
         db_name = arg['<database_name>']
-        self.dojo.save_state(db_name)        
+        if db_name:
+            self.dojo.save_state(db_name)
+        else:
+            self.dojo.save_state('amity')
 
     @docopt_cmd
     def do_load_state(self, arg):
@@ -164,17 +168,14 @@ class AmitySpaceAllocation (cmd.Cmd):
         db_name = str(arg['<database_name>'])
         self.dojo.load_state(db_name)
 
-
     @docopt_cmd
     def do_reallocate(self, arg):
-        """Usage: reallocate <id> <room_from> <room_to> """
-        try:
-            id = str(arg['<id>'])
-            room_to = arg["<room_to>"]
-            room_from = arg["<room_from>"]
-            self.dojo.reallocate(id, room_from, room_to)
-        except TypeError:
-            print(colored("Invalid database name"))  
+        """Usage: reallocate <id> <room_to> """
+
+        id = arg['<id>']
+        room_to = arg["<room_to>"]
+        self.dojo.reallocate(id, room_to)
+
 
     def do_quit(self, arg):
         """Quits out of Interactive Mode."""

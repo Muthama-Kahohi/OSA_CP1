@@ -7,6 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import text, select
 from termcolor import colored
+import os.path
 
 
 class Amity(object):
@@ -28,23 +29,10 @@ class Amity(object):
         if 'room_type' in to_create.keys() and 'room_name' in to_create.keys():
             room_type = to_create['room_type'].lower()
 
+
             if room_type == 'office':
-                if type(to_create['room_name']) is str:
-                    room_name = to_create['room_name']
-                    if room_name not in self.room_names_list:
-                        self.office_list.append(
-                            {'room_name': room_name, 'room_type': room_type,
-                                "occupants": []})
-                        self.rooms_list.append(room_name)
-                        self.unfilled_offices.append(room_name)
-                        self.room_names_list.append(room_name)
-                        print(colored("%s has been created sucessfully" % room_name,"green")).center(70)
-                        room_name = Office(room_name)
-
-                    else:
-                        print (colored("Room already exists", "red"))
-
-                elif type(to_create['room_name']) is list:
+                
+                if type(to_create['room_name']) is list:
                     for item in to_create['room_name']:
                         room_name = item
                         if room_name not in self.room_names_list:
@@ -57,23 +45,29 @@ class Amity(object):
                             room_name = Office(room_name)
 
                         else:
-                            print (colored("%s already exists" %room_name, "red")).center(70)
+                            print (colored("%s already exists" %room_name, "red")).center(70)                
+                else:
+                    to_create['room_name'] = str(to_create['room_name'])
+                    if type(to_create['room_name']) is str:
+                        room_name = to_create['room_name']
+                        if room_name not in self.room_names_list:
+                            self.office_list.append(
+                                {'room_name': room_name, 'room_type': room_type,
+                                    "occupants": []})
+                            self.rooms_list.append(room_name)
+                            self.unfilled_offices.append(room_name)
+                            self.room_names_list.append(room_name)
+                            print(colored("%s has been created sucessfully" % room_name,"green")).center(70)
+                            room_name = Office(room_name)
+
+                        else:
+                            print (colored("Room already exists", "red"))
+
+
 
             elif room_type == 'living':
-                if type(to_create['room_name']) is str:
-                    room_name = to_create['room_name']
-                    if room_name not in self.room_names_list:
-                        self.living_list.append(
-                            {'room_name': room_name, 'room_type': room_type, "occupants": []})
-                        self.rooms_list.append(room_name)
-                        self.unfilled_living.append(room_name)
-                        self.room_names_list.append(room_name)
-                        print(colored("%s has been created sucessfully" % room_name,"green")).center(70)
-                        room_name = LivingSpace(room_name)
-                    else:
-                        print (colored("%s already exists" %room_name, "red"))
 
-                elif type(to_create['room_name']) is list:
+                if type(to_create['room_name']) is list:
                     for item in to_create['room_name']:
                         room_name = item
                         if room_name not in self.room_names_list:
@@ -85,24 +79,40 @@ class Amity(object):
                             print(colored("%s has been created sucessfully" % room_name,"green")).center(70)
                             room_name = LivingSpace(room_name)
                         else:
+                            print (colored("%s already exists" %room_name, "red"))                
+                else:
+                    to_create['room_name']=str(to_create['room_name'])
+                    if type(to_create['room_name']) is str:
+                        room_name = to_create['room_name']
+                        if room_name not in self.room_names_list:
+                            self.living_list.append(
+                                {'room_name': room_name, 'room_type': room_type, "occupants": []})
+                            self.rooms_list.append(room_name)
+                            self.unfilled_living.append(room_name)
+                            self.room_names_list.append(room_name)
+                            print(colored("%s has been created sucessfully" % room_name,"green")).center(70)
+                            room_name = LivingSpace(room_name)
+                        else:
                             print (colored("%s already exists" %room_name, "red"))
+
+
 
             else:
                 print(colored("Room can only be an Office or a Living Space", "red")).center(70)
         self.rooms_list = self.office_list + self.living_list
 
     def room_availability(self):
-        for room in range(len(self.office_list)):
-            if len(self.office_list[room]['occupants']) == 6:
-                filled_room = self.office_list[room]['room_name']
-                print("Room %s is full. I t has to be removed++++++++++++++"
-                      % filled_room)
+        for room in self.office_list:
+            if len(room['occupants']) == 6:
+                filled_room = room['room_name']
+                # print("Room %s is full. Removing from vacant rooms"
+                #       % filled_room)
                 self.unfilled_offices.remove(filled_room)
-        for room in range(len(self.living_list)):
-            if len(self.living_list[room]['occupants']) == 4:
-                room_name = self.living_list[room]['room_name']
-                print("Room %s is full. I t has to be removed++++++++++++++"
-                      % room_name)
+        for room in self.living_list:
+            if len(room['occupants']) == 4:
+                room_name = room['room_name']
+                # print("Room %s is full. Removing from vacant rooms"
+                #       % room_name)
                 self.unfilled_living.remove(room_name)
         print("Room availability check done************")
 
@@ -148,11 +158,14 @@ class Amity(object):
         self.persons_list.append(person_dict)
         
         print (colored("************************************************************", "yellow")).center(70)
-        print(colored("%s has been created" % fname, "blue")).center(70)
+        print(colored("%s has been created with id %s" % (fname, fnameId), "blue")).center(70)
         print (colored("************************************************************", "yellow")).center(70)
 
         # Before allocation room availability is confirrmed
-        self.room_availability()
+        try:
+            self.room_availability()
+        except ValueError:
+            pass    
         # Allocate office to any person added
 
         if len(self.unfilled_offices) > 0:
@@ -191,6 +204,7 @@ class Amity(object):
 
                 print(colored("No Living space to allocate","red")).center(70)
 
+
     def return_office_name(self, id):
         '''returns the name of the office in which a particular id is in'''
         found = False
@@ -218,43 +232,47 @@ class Amity(object):
         else:
             return 'None'
 
-    def reallocate(self, occupant_id, room_from, room_to):
-        for room in self.room_list:
-            if room_from in room['room_name']:
-                rtype = room['room_type']
-                if rtype == 'office':
-                    for room in self.office_list:
-                        if occupant_id in room['occupants']:
-                            room['occupants'].remove(occupant_id)
-                        else:
-                            print(colored("Occupant not in the room"))
-                else:
-                    for room in self.living_list:
-                        if occupant_id in room['occupants']:
-                            room['occupants'].remove(occupant_id)
-                            print("Successfully removed from %s" %room['room_name'])
-                        else:
-                            print(colored("Occupant not in the room"))    
-
+    def reallocate(self, occupant_id, room_to):
+        str(occupant_id)
 
         # Ensure that a member is reallocated to an unfilled room
         vacant_rooms = self.unfilled_living + self.unfilled_offices
         if room_to in vacant_rooms:
-            for room in range(len(self.office_list)):
-                if self.office_list[room]['room_name'] == room_to:
-                    self.office_list[room]['occupants'].append(id)
-                    print(colored("Succesfully reallocated to %s" %self.office_list[room]['room_name'], "green"))
+            
+            for room in self.office_list:
+                if room['room_name'] == room_to:
+                    print("found")
+                    room['occupants'].append(occupant_id)
+                    print(colored("Succesfully reallocated to %s" %room['room_name'], "green"))
                     break
                 else:
                     continue
+            for room in self.office_list:
+                if occupant_id in room['occupants'] and room['room_name'] != room_to:
+                    room['occupants'].remove(occupant_id)
+                    print(colored(" % s removed from % s" 
+                          %(occupant_id, room['room_name']), "red"))
+                    break
+                else:
+                    continue        
+        
 
-            for room in range(len(self.living_list)):
-                if self.living_list[room]['room_name'] == room_to:
-                    self.living_list[room]['occupants'].append(id)
-                    print(colored("Succesfully reallocated to %s" %self.living_list[room]['room_name'], "green"))
+            for room in self.living_list:
+                if room['room_name'] == room_to:
+                    print("found")
+                    room['occupants'].append(occupant_id)
+                    print(colored("Succesfully reallocated to %s" %room['room_name'], "green"))
                     break
                 else:
                     continue
+            for room in self.living_list:
+                if occupant_id in room['occupants'] and room['room_name'] != room_to:
+                    room['occupants'].remove(occupant_id)
+                    print(colored(" % s removed from % s" 
+                          %(occupant_id, room['room_name']), "red"))
+                    break
+                else:
+                    continue        
         else:
             print "That room is already full and cannot be added"
 
@@ -262,21 +280,21 @@ class Amity(object):
         print(colored("---------------------------------------------------", "white")).center(70) 
         print(colored(room_name.upper(), "green")).center(70)
         print(colored("---------------------------------------------------", "white")).center(70)
-        for room in range(len(self.office_list)):
-            if room_name == self.office_list[room]['room_name']:
-                if len(self.office_list[room]['occupants']) > 1:
-                    for occupant in self.office_list[room]['occupants']:
+        for room in self.office_list:
+            if room_name == room['room_name']:
+                if len(room['occupants']) > 0:
+                    for occupant in room['occupants']:
                         print(colored(self.return_names(occupant), "white")).center(70)
                     break
                 else:
-                    print(colored("No occupants", "red")).center(700)
+                    print(colored("No occupants", "red")).center(70)
             else:
                 continue
 
-        for room in range(len(self.living_list)):
-            if room_name == self.living_list[room]['room_name']:
-                if len(self.living_list[room]['occupants']) > 1:
-                    for occupant in self.living_list[room]['occupants']:
+        for room in self.living_list:
+            if room_name == room['room_name']:
+                if len(room['occupants']) > 0:
+                    for occupant in room['occupants']:
                         print(colored(self.return_names(occupant), "white")).center(70)
                     break
                 else:
@@ -285,6 +303,7 @@ class Amity(object):
                 continue
 
     def return_names(self, id):
+        print(id)
         for person in range(len(self.persons_list)):
             if self.persons_list[person]['id'] == id:
                 fname = self.persons_list[person]['fname']
@@ -295,23 +314,26 @@ class Amity(object):
         return('%s %s' % (fname, lname))
 
     def load_people(self, file_name):
-        array = []
-        print(colored("LOADING"))
-        try:
-            with open(file_name, mode="r") as ins:
-                array = ins.readlines()
-                for persons in array:
-                    person = persons.split()
-                    fname = person[0]
-                    lname = person[1]
-                    role = person[2]
-                    if role == 'STAFF' and len(person) == 3:
-                        accomodation = 'N'
-                    else:
-                        accomodation = person[3]
-                    self.create_person(fname, lname, role, accomodation)
-        except IOError:
-            print(colored("%s does not exist" %file_name, "red"))            
+        if  not os.path.isfile(file_name):
+            print("File does not exist")
+        else:    
+            array = []
+            print(colored("LOADING"))
+            try:
+                with open(file_name, mode="r") as ins:
+                    array = ins.readlines()
+                    for persons in array:
+                        person = persons.split()
+                        fname = person[0]
+                        lname = person[1]
+                        role = person[2]
+                        if role == 'STAFF' and len(person) == 3:
+                            accomodation = 'N'
+                        else:
+                            accomodation = person[3]
+                        self.create_person(fname, lname, role, accomodation)
+            except IOError:
+                print(colored("%s does not exist" %file_name, "red"))            
 
     def print_allocations(self, file_name=None):
         self.file_name= file_name
@@ -414,70 +436,80 @@ class Amity(object):
         print(colored("Application data successfully saved to the database >> %s" %db_name, "red"))        
 
     def load_state(self, db_name):
-        # create engine
-        engine = create_engine('sqlite:///' + db_name)
-        # Bind engine to Base Metadata
-        Base.metadata.bind = engine
-        # creates session
-        Session = sessionmaker(bind=engine)
-        session = Session()
+        if not os.path.isfile(db_name):
+            print("Database does not exist")
+        else:    
+            # create engine
+            engine = create_engine('sqlite:///' + db_name)
+            # Bind engine to Base Metadata
+            Base.metadata.bind = engine
+            # creates session
+            Session = sessionmaker(bind=engine)
+            session = Session()
 
-        # Selects all the rooms in the Rooms table
-        items = select([AmityRooms])
-        result = session.execute(items)
+            # Selects all the rooms in the Rooms table
+            items = select([AmityRooms])
+            result = session.execute(items)
 
-        # orders the result to enable  tabulation
-        for item in result.fetchall():
-            name = item.room_name
-            rtype = item.room_type
-            if  rtype == 'office':
-                for room in self.office_list:
-                    if name in room["room_name"]:
-                        continue
-                    else:    
-                        self.office_list.append(
-                              {'room_name': name, 'room_type': rtype, 'occupants': []})
-            else:
-                for room in self.living_list:
-                    if name in room["room_name"]:
-                        continue
-                    else:    
-                        self.living_list.append(
-                              {'room_name': name, 'room_type': rtype, 'occupants': []})
+            # orders the result to enable  tabulation
+            for item in result.fetchall():
+                name = item.room_name
+                rtype = item.room_type
+                
+                if  rtype == 'office':
+                    if len(self.office_list) == 0:
+                        
+                        self.create_room({"room_type":'office', "room_name":name})
+                    else:
+                        for room in self.office_list:
+                            if name not in room["room_name"]:
+                                self.create_room({"room_type":'office', "room_name":name})
 
-        session.close()
+                else:
+                    if len(self.living_list) == 0:
+                        self.create_room({"room_type":'living', "room_name":name}) 
+                    else:                   
+                        for room in self.living_list:
+                            if name not in room["room_name"]:  
+                                self.create_room({"room_type":'living', "room_name":name})
+            session.close()
 
-        # Selects all the rooms in the Rooms table
-        items = select([Persons])
-        result = session.execute(items)
+            # Selects all the rooms in the Rooms table
+            items = select([Persons])
+            result = session.execute(items)
 
-        items_list = []
+            items_list = []
 
-        # orders the result to enable  tabulation
-        for item in result.fetchall():
-            fname = item.fname
-            lname = item.lname
-            role = item.role
-            accomodation = item.accomodation
-            andela_id = item.andela_id
-            office_allo = item.office_allocated
-            living_allo = item.living_allocated
+            # orders the result to enable  tabulation
+            for item in result.fetchall():
+                fname = item.fname
+                lname = item.lname
+                role = item.role
+                accomodation = item.accomodation
+                andela_id = item.andela_id
+                office_allo = item.office_allocated
+                living_allo = item.living_allocated
+            for person in self.persons_list:
+                if andela_id in person['id']:
+                    print(colored("Person already exists", "red"))
+                    continue
+                else:    
+                    self.persons_list.append(
+                        {'fname':fname,'lname':lname,'role':role ,'wants_accomodation':accomodation, 'id':andela_id})
+                    
+                    for room in self.office_list:
+                        if room['room_name'] == office_allo: 
+                            room['occupants'].append(andela_id)
+                    for room in self.living_list:
+                        if room['room_name'] == living_allo: 
+                            room['occupants'].append(andela_id) 
+                    self.unfilled_offices = [self.office_list[room]['room_name'] for room in range(len(self.office_list)) if len(self.office_list[room]['occupants']) < 6] 
+                    self.unfilled_living = [self.living_list[room]['room_name'] for room in range(len(self.living_list)) if len(self.living_list[room]['occupants']) < 4]
+                  
+            self.room_list = self.office_list + self.living_list          
+            session.close()
+            print(colored("Data successfuly added to the application", "green"))
 
-            self.persons_list.append(
-                {'fname':fname,'lname':lname,'role':role ,'wants_accomodation':accomodation, 'id':andela_id})
-            for room in range(len(self.office_list)):
-                if self.office_list[room]['room_name'] == office_allo: 
-                    self.office_list[room]['occupants'].append(andela_id)
-            for room in range(len(self.living_list)):
-                if self.living_list[room]['room_name'] == living_allo: 
-                    self.living_list[room]['occupants'].append(andela_id) 
-            self.unfilled_offices = [self.office_list[room]['room_name'] for room in range(len(self.office_list)) if len(self.office_list[room]['occupants']) < 6] 
-            self.unfilled_living = [self.living_list[room]['room_name'] for room in range(len(self.living_list)) if len(self.living_list[room]['occupants']) < 4]          
-
-        self.room_list = self.office_list + self.living_list          
-        session.close()
-        print(colored("Data successfuly added to the application", "green"))
-  
 
 
 class Rooms (object):
@@ -494,8 +526,7 @@ class LivingSpace(Rooms):
 class Office(Rooms):
     def __init__(self, room_name):
         self.capacity = 6
-# k = Amity()
-# k.create_room({"room_name":['krypton','occulis','cyan','bumblebee'],"room_type":'living'})
-# k.create_room({"room_name":['go','pearl','awesome'],'room_type':'office'})
-# k.load_people("file")
-# k.save_state("awesome")
+
+k = Amity()
+k.save_state()
+
