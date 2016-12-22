@@ -31,7 +31,7 @@ from pyfiglet import Figlet
 from termcolor import colored
 
 # import my modules
-from app.Amity import Amity
+from app.amity import Amity
 
 
 def docopt_cmd(func):
@@ -100,10 +100,15 @@ class AmitySpaceAllocation (cmd.Cmd):
             first_name = str(arg['<fname>'])
             last_name = str(arg['<lname>'])
             role = str(arg['<role>'])
-            accomodation = str(arg['<accomodation>'])
+            accomodation = arg['<accomodation>']
+    
         except TypeError:
             print("You have to pass names")
-        self.dojo.create_person(first_name, last_name, role, accomodation)
+        if accomodation == None:
+            wants_accomodation = 'N'
+        else:
+            wants_accomodation = accomodation    
+        self.dojo.create_person(first_name, last_name, role, wants_accomodation)
 
     @docopt_cmd
     def do_load_people(self, arg):
