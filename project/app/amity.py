@@ -27,6 +27,11 @@ class Amity(object):
         self.room_names_list = []
 
     def create_room(self, to_create={}):
+        '''
+        Creates offices and living spaces.
+        Receives a dictionary with room name and room type.
+        Room name is a list when creating multiple rooms at once
+        '''
         if 'room_type' in to_create.keys() and 'room_name' in to_create.keys():
             room_type = to_create['room_type'].lower()
             print(room_type)
@@ -98,6 +103,7 @@ class Amity(object):
         self.rooms_list = self.office_list + self.living_list
 
     def room_availability(self):
+        '''Function to check if a room is full. If not, makes it available to add persons to it '''
         for room in self.office_list:
             if len(room['occupants']) == 6:
                 filled_room = room['room_name']
@@ -116,6 +122,9 @@ class Amity(object):
         print("Room availability check done************")
 
     def create_person(self, fname, lname, role, accomodation = 'N'):
+        '''
+        Adds staff and fellows and randomly allocates a room
+        '''
         role = role.upper()
         fellow, staff, yes, no = 'FELLOW', 'STAFF', 'Y', 'N'
         # Ensure that the  first name and last name are strings
@@ -218,6 +227,7 @@ class Amity(object):
             return 'None'
 
     def return_living_name(self, id):
+        '''returns the name of the living space in which a particular id is in'''
         found = False
         for room in range(len(self.living_list)):
             if id not in self.living_list[room]['occupants']:
@@ -231,6 +241,8 @@ class Amity(object):
             return 'None'
 
     def reallocate(self, occupant_id, room_to):
+        ''' Removes a person from a room to another ensuring
+         it is office to office and livig space to living space reallocation'''
         found = False
         str(occupant_id)
         room_to = room_to.lower()
@@ -280,11 +292,13 @@ class Amity(object):
             print(colored("No such room exists", "red"))        
 
     def print_room(self, room_name):
+        '''Prints out the occupants of a room.'''
+        #prints room name
         if room_name in self.room_names_list:    
             print(colored("---------------------------------------------------", "white")).center(70) 
             print(colored(room_name.upper(), "green")).center(70)
             print(colored("---------------------------------------------------", "white")).center(70)
-        
+            #prints the occupants
             for room in self.office_list:
                 if room_name == room['room_name']:
                     if len(room['occupants']) > 0:
@@ -321,6 +335,7 @@ class Amity(object):
         return('%s %s' % (fname, lname))
 
     def load_people(self, file_name):
+        '''Function that reads names of persons from a file and adds them.'''
         if  not os.path.isfile(file_name):
             print("File does not exist")
         else:    
@@ -338,11 +353,13 @@ class Amity(object):
                             accomodation = 'N'
                         else:
                             accomodation = person[3]
+                        #Calls create_person function to add the person and allocate room    
                         self.create_person(fname, lname, role, accomodation)
             except IOError:
                 print(colored("%s does not exist" %file_name, "red"))            
 
     def print_allocations(self, file_name=None):
+        '''prints all rooms and their occupants. If file_name given outputs to a file, else prints in the terminal'''
         self.file_name= file_name
         if self.file_name is None:
             for room in range(len(self.rooms_list)):
@@ -369,6 +386,8 @@ class Amity(object):
 
 
     def print_unallocated(self, file_name=None):
+        '''prints all rpeople without rooms. Specifying for living space and Offices'''
+
         self.file_name =file_name
         if self.file_name is None:
             print("Persons Unallocated offices")
@@ -403,6 +422,7 @@ class Amity(object):
                 print(colored("%s created. Check Your directory " %file_name ,"green"))       
 
     def save_state(self, db_name='amity'):
+        '''Persists data added during a sesion to a database file. Amity by default if none is given'''
         engine = create_db(db_name)
         Base.metadata.bind = engine
         Session = sessionmaker()
@@ -444,6 +464,7 @@ class Amity(object):
         print(colored("Application data successfully saved to the database >> %s" %db_name, "red"))        
 
     def load_state(self, db_name):
+        '''Takes in data from a database and adds to a session'''
         if not os.path.isfile(db_name):
             print("Database does not exist")
         else:    
