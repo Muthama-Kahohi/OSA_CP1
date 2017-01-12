@@ -560,33 +560,3 @@ class Amity(object):
             print(colored("Data successfuly added to the application", "green"))
 
 
-
-class Rooms (object):
-
-    def __init__(self):
-        self.occupants = []
-
-
-class LivingSpace(Rooms):
-    def _init__(self):
-        self.capacity = 4        
-    
-
-
-class Office(Rooms):
-    def _init__(self):
-        self.capacity = 6
-
-class Person(object):
-    def __init__(self):
-        self.office_allocated = ""
-
-
-class Fellow(Person):
-    def __init__(self):
-        self.living_accomodation = "N"
-
-
-class Staff(Person):
-    def __init__(self):
-        self.living_accomodation = ""
