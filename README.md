@@ -3,7 +3,7 @@
 A command line application that allocates offices and living spaces to fellows and staff.
 
 ##Features
-1. **add_person <fname> <lname> <role> <wants_accomodation>** .... Adds either a staff or a fellow. The deafult value for <wants_accomodation> is No.
+1. **add_person <fname> <lname> <role> <wants_accomodation>** .... Adds either a staff or a fellow. The default value for <wants_accomodation> is No.
 2. **create_room <room_type> <room_name>** ... creates a room with the type either being an office or a living space. Command also allows adding of multiple rooms.
 3. **load_people <file_name>** .... adds people from a text file.
 4. **save_state [--db=sqlite_database]** ... Persists all the data stored in the app to a SQLite database. Specifying the --db parameter   explicitly stores the data in the sqlite_database specified.  
