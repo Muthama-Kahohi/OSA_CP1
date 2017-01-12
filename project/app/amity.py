@@ -58,7 +58,6 @@ class Amity(object):
                             self.unfilled_offices.append(room_name)
                             self.room_names_list.append(room_name)
                             print(colored("%s has been created sucessfully" % room_name,"green")).center(70)
-                            # room_name = Office(room_name)
 
                         else:
                             print (colored("Room already exists", "red"))
@@ -76,7 +75,6 @@ class Amity(object):
                             self.unfilled_living.append(room_name)
                             self.room_names_list.append(room_name)
                             print(colored("%s has been created sucessfully" % room_name,"green"))
-                            # room_name = Office(room_name)
                         else:
                             print (colored("%s already exists" %room_name, "red")).center(70)                
                 else:
@@ -91,7 +89,6 @@ class Amity(object):
                             self.unfilled_living.append(room_name)
                             self.room_names_list.append(room_name)
                             print(colored("%s has been created sucessfully" % room_name,"green")).center(70)
-                            # room_name = Office(room_name)
 
                         else:
                             print (colored("Room already exists", "red"))
@@ -104,8 +101,6 @@ class Amity(object):
         for room in self.office_list:
             if len(room['occupants']) == 6:
                 filled_room = room['room_name']
-                # print("Room %s is full. Removing from vacant rooms"
-                #       % filled_room)
                 if filled_room in self.unfilled_offices:
                     self.unfilled_offices.remove(filled_room)
                 else:
@@ -113,8 +108,7 @@ class Amity(object):
         for room in self.living_list:
             if len(room['occupants']) == 4:
                 room_name = room['room_name']
-                # print("Room %s is full. Removing from vacant rooms"
-                #       % room_name)
+
                 if room_name in self.unfilled_living:
                     self.unfilled_living.remove(room_name)
                 else:
