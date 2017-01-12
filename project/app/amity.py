@@ -1,5 +1,5 @@
 
-from people import Person, rooms, people
+from people import Person, Fellow, Staff
 from rooms import Rooms, Office, LivingSpace
 from random import randint
 import random
