@@ -1,4 +1,6 @@
 
+from people import Person, rooms, people
+from rooms import Rooms, Office, LivingSpace
 from random import randint
 import random
 import uuid
@@ -47,7 +49,7 @@ class Amity(object):
                             self.unfilled_offices.append(room_name)
                             self.room_names_list.append(room_name)
                             print(colored("%s has been created sucessfully" % room_name,"green"))
-                            # room_name = Office(room_name)
+                           
                         else:
                             print (colored("%s already exists" %room_name, "red")).center(70)                
                 else:
