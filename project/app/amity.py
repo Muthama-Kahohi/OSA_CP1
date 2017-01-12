@@ -1,6 +1,5 @@
 
 from random import randint
-from people import Person, Staff, Fellow
 import random
 import uuid
 from db.db_manager import AmityRooms, Persons, create_db, Base
@@ -578,3 +577,16 @@ class Office(Rooms):
     def _init__(self):
         self.capacity = 6
 
+class Person(object):
+    def __init__(self):
+        self.office_allocated = ""
+
+
+class Fellow(Person):
+    def __init__(self):
+        self.living_accomodation = "N"
+
+
+class Staff(Person):
+    def __init__(self):
+        self.living_accomodation = ""
