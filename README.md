@@ -3,7 +3,6 @@
 A command line application that allocates offices and living spaces to fellows and staff.
 
 ##Features
-Features include:
 1. add_person
 2. create_room
 3. load_people
